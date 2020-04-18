@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.set('useFindAndModify', false);
 
 const Dishes = require('./models/dishes');
 
@@ -14,12 +15,28 @@ connect.then((db) => {
 		description: 'bBest'
 	})
 	.then((dish) => {
-		console.log("--->" + dish);
-		return Dishes.find({}).exec();
+		console.log(dish);
+		return Dishes.findByIdAndUpdate(dish._id, {
+			$set: {description: 'Updated test'}
+		},{
+			new: true
+		}).exec();
 	})
-	.then((dishes) => {
-		console.log("===>" + dishes);
-		return Dishes.deleteOne({});
+	.then((dish) => {
+		console.log(dish);
+
+		dish.comments.push({
+			rating: 5,
+			comment: 'I\'m getting a sinking feeling',
+			author: 'Leonardo Dicapprio'
+		});
+
+		return dish.save();
+	})
+	.then((dish) => {
+		console.log(dish);
+
+		return Dishes.deleteMany({});
 	})
 	.then(() => {
 		return mongoose.connection.close();
